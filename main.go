@@ -25,7 +25,9 @@ func main() {
 	router := gin.Default()
 	router.GET("/albums",getAlbums)
 	router.POST("/albums",postAlbums)
+	router.PUT("/albums/:id",updateAlbum)
 	router.Run(":8080")
+
 	
 }
 
@@ -42,5 +44,23 @@ func postAlbums(c *gin.Context){
     }
 	// Add the new album to the slice
     albums = append(albums, newAlbum)
-    c.IndentedJSON(http.StatusCreated, newAlbum)
+    c.IndentedJSON(http.StatusCreated, albums)
+}
+
+func updateAlbum(c *gin.Context){
+	var updatedAlbum album
+	id := c.Param("id")
+
+	if err := c.BindJSON(&updatedAlbum); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+		
+		for i, album := range albums{
+			if album.ID == id {
+				albums[i] = updatedAlbum
+                c.IndentedJSON(http.StatusOK, &albums)
+                return
+            }
+		}
 }
